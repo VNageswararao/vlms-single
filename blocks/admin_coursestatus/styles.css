@@ -1,0 +1,16 @@
+.count-courses,.count-text{
+    text-align: center;
+    margin-top: 1px;
+}
+.block_admin_coursestatus .card{
+    border: 0px;
+}
+.card-line{
+    margin: 5px 0 6px 0!important;
+  
+}
+.card-border {
+    border-bottom: 1px solid #eee;
+}
+
+

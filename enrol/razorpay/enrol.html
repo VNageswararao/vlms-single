@@ -1,0 +1,274 @@
+<div align="center">
+<?php 
+if($USER->id){
+$userid=$USER->id;
+$email=$USER->email;
+}else{
+$userid=0;
+$email='';
+}
+
+include_once('lib/razorpay/Razorpay.php'); 
+use Razorpay\Api\Api;
+$api_key = $this->get_config('key_id');
+$api_secret = $this->get_config('key_secret');
+$api = new Api($api_key, $api_secret);
+$order  = $api->order->create(
+array('receipt' =>"{$userid}-{$course->id}-{$instance->id}", 
+    'amount' =>(int)$cost*100, 
+    'currency' =>$instance->currency)); // Creates order
+?>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script  src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<form action="" id="PayAmount" method="post">
+<div class="container">
+      <input type="hidden" name="charset" value="utf-8" />
+        <input type="hidden" name="instanceid" value="<?php p($instance->id); ?>" />
+        <input type="hidden" name="coursefullname" value="<?php p($coursefullname) ?>" />
+        <input type="hidden" name="courseshortname" value="<?php p($courseshortname) ?>" />
+        <input type="hidden" name="userid" value="<?php echo $userid ?>" />
+        <input type="hidden" name="username" value="<?php p($userfullname) ?>" />
+        <input type="hidden" name="currency" value="<?php p($instance->currency) ?>" />
+        <input type="hidden" name="amount" value="<?php p($cost) ?>" />
+        
+        <input type="hidden" name="return" value='<?php echo "$CFG->wwwroot/enrol/razorpay/return.php?id=$course->id" ?>' />
+        <input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
+        <div class="card">
+            <div class="card-body">
+                <h3>Payment Details</h3>
+                </div>
+                <div class="row">
+                    <div class="col-4">Payment Type</div>
+                    <div class="col-4"><img id="payimage" src='<?php echo $CFG->wwwroot; ?>/enrol/razorpay/pix/icon.png' width="200px;" height="50px;" /></div>
+                </div>
+                <div class="row">
+                    <div class="col-4">Course Name</div>
+                    <div class="col-4"><?php p($coursefullname) ?></div>
+                </div>
+                <div class="row">
+                    <div class="col-4">Cost</div>
+                    <div class="col-4"><?php echo "{$instance->currency} {$localisedcost}"; ?></div>
+                </div>
+                </div>
+                <br/>
+        <div class="row">
+            <div class="col">
+                <div  class="form-row"><h4>APPLICATION FORM</h4></div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-row"><h5>Personal Details</h5></div>
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                     
+                              <input type="text" class="form-control" name="firstname" id="firstname" placeholder="First Name" value="<?php p($userfirstname) ?>">
+                            </div>
+                            <div class="form-group col-md-4">
+                 
+                                <input type="text" class="form-control" name="middlename" id="middlename" placeholder="Middle Name">
+                              </div>
+                            <div class="form-group col-md-4">
+                              <input type="text" class="form-control" name="lastname" id="lastname" placeholder="Last Name" value="<?php p($userlastname) ?>">
+                            </div>
+                          </div>
+                        <div  class="form-row">
+                             <div class="form-group col-md-4">
+                                 <input type="email" class="form-control" name="email" id="email" placeholder="Email" value="<?php echo $email; ?>" >
+                                </div>
+                            <div class="form-group col-md-4">
+                                <input type="text" class="form-control" name="phone" id="phone"   placeholder="Phone Number" value="<?php echo $USER->phone1; ?>">
+                            </div>
+                                <div class="form-group col-md-4">
+                                    <input type="text" class="form-control" name="dob" id="dob" placeholder="Date of Birth">
+                                        </div>
+                                
+                        </div>
+
+                        <div  class="form-row">
+                            <div class="form-group col-md-4">
+                                <textarea class="form-control" name="address" id="address" placeholder="Address"><?php echo p($useraddress); ?></textarea>
+                        </div>
+                            <div class="form-group col-md-4">
+                            <select class="form-control" name="country" id="country">
+                                <option value="1">India</option>
+                                <option value="2">USA</option>
+                              </select>
+                        </div>
+                            <div class="form-group col-md-4">
+                            <select class="form-control" name="state" id="state">
+                                <option>Andhra</option>
+                                <option>Telengana</option>
+                              </select>
+                        </div>
+                      
+                       </div>
+                                               
+                     
+                      <div class="form-row">
+                        
+                        <div class="form-group col-md-4">
+                             <input type="text" class="form-control" name="city" id="city" placeholder="City" value="<?php p($usercity) ?>">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <input type="text" class="form-control" name="pincode" id="pincode" placeholder="Pin Code">
+                         </div>
+                          <div class="form-group col-md-4">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="photo" id="photo">
+                                    <label class="custom-file-label" for="photo">Choose Photo</label>
+                                  </div>
+                               </div>
+                          
+                      </div>
+                        
+                          <input type="submit"  class="btn btn-primary" value='Pay Now'>
+                        
+                    </div>
+                  </div>
+              </div>
+        </div>
+                
+    </div>
+</form>
+
+</div>
+<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    
+$('#country').change(function(){
+      if($('#country').val()==1){
+       $("#payimage").attr("src","<?php echo $CFG->wwwroot; ?>/enrol/razorpay/pix/razorpay.png"); 
+    }else{
+     $("#payimage").attr("src","<?php echo $CFG->wwwroot; ?>/enrol/razorpay/pix/stripe.png");   
+    }
+    });
+$("#PayAmount").submit(function( event ) {
+  if($('#country').val()==1){
+  var options = {
+    "key": "<?php echo $api_key; ?>", // Enter the Key ID generated from the Dashboard
+    "amount": "<?php echo $order->amount; ?>", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "<?php echo $instance->currency;  ?>",
+    "name": "Payment towards <?php echo $coursefullname ?> course",
+    "description": "Thank you for choosing <?php echo $coursefullname; ?> course",
+    "image": "<?php echo $CFG->wwwroot; ?>/enrol/razorpay/pix/icon.png",
+    "order_id": "<?php echo $order->id; ?>", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    config: {
+      display: {
+        blocks: {
+          hdfc: { //name for HDFC block
+            name: "Pay using HDFC Bank",
+            instruments: [
+              {
+                method: "card",
+                issuers: ["HDFC"]
+              },
+              {
+                method: "netbanking",
+                banks: ["HDFC"]
+              },
+            ]
+          },
+          other: { //  name for other block
+            name: "Other Payment modes",
+            instruments: [
+              {
+                method: "card",
+                issuers: ["ICIC"]
+              },
+              {
+                method: 'netbanking',
+              }
+            ]
+          }
+        },
+        hide: [
+          {
+          method: "upi"
+          }
+        ],
+        sequence: ["block.hdfc", "block.other"],
+        preferences: {
+          show_default_blocks: true // Should Checkout show its default blocks?
+        }
+      }
+    },
+    
+    "handler": function (response){
+        alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature)
+    },
+    "prefill": {
+        "name": $('#firstname').val()+' '+$('#lastname').val(),
+        "email": $('#email').val(),
+        "contact":"'"+$('#phone').val()+"'"
+    },
+    "notes": {
+        "firstname":$('#firstname').val(),
+        "middlename":$('#middlename').val(),
+        "lastname":$('#lastname').val(),
+        "address":$('#address').val(),
+        "dob":$('#dob').val(),
+        "country":$('#country').val(),
+        "state":$('#state').val(),
+        "city":$('#city').val(),
+        "pincode":$('#pincode').val(),
+    },
+    "theme": {
+        "color": "#3399cc"
+    },
+    callback_url:"<?php echo $CFG->wwwroot; ?>/enrol/razorpay/razorpay-callback.php",
+    redirect:true,
+    send_sms_hash:true
+};
+//console.log(JSON.stringify(options));
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+rzp1.open();
+  event.preventDefault();
+  
+}else{
+    var stripe = Stripe("pk_test_51HL8cLBlE3i5wB41uV846GFDa6QnzMxa1CzW7kDTKOivIglbRZARz19scSGTHnMdDJOjnN2zVAp9JjZYwUMX6XE500Wnsm47nN");
+    fetch("<?php echo $CFG->wwwroot; ?>/enrol/razorpay/stripe-order-checkout.php", 
+    {
+    method: "POST",
+    body: JSON.stringify({
+        currency:"<?php echo $instance->currency;  ?>",
+        cost:"<?php echo $cost; ?>",
+        coursename:"<?php echo $coursefullname; ?>"}),
+    })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (session) {
+          return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .then(function (result) {
+          // If redirectToCheckout fails due to a browser or network
+          // error, you should display the localized error message to your
+          // customer using error.message.
+          if (result.error) {
+            alert(result.error.message);
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+        });
+        event.preventDefault();
+    }
+});
+
+</script>
+
+    
